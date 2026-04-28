@@ -39,7 +39,7 @@ app.use(cors({
     "http://localhost:5174",
     "https://res.cloudinary.com"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "authorization","token", "Authorization", "aToken", "atoken", "dToken", "dtoken"],
 }));

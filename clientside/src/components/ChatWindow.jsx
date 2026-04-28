@@ -265,26 +265,40 @@ const ChatWindow = ({ appointmentId, doctorName, doctorImage, onClose }) => {
                     : "bg-gray-100 text-gray-800"
                 }`}
               >
+                {/* Updated Messages Rendering Logic */}
                 {message.messageType === "image" && message.fileUrl ? (
                   <div>
                     <p className="text-sm mb-2">{message.message}</p>
                     <img
                       src={message.fileUrl}
                       alt="Shared image"
-                      className="rounded cursor-pointer"
-                      onClick={() => window.open(message.fileUrl, "_blank")}
+                      className="rounded cursor-pointer max-h-60 hover:opacity-90 transition-opacity"
+                      onClick={() => {
+                        // Forces the image to open in a clean tab without Cloudinary UI
+                        const viewUrl = message.fileUrl.replace("/upload/", "/upload/f_auto,q_auto/");
+                        window.open(viewUrl, "_blank");
+                      }}
                     />
                   </div>
                 ) : message.messageType === "document" && message.fileUrl ? (
-                  <div>
-                    <p className="text-sm mb-2">{message.message}</p>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm">{message.message}</p>
                     <a
-                      href={message.fileUrl}
+                      // CRITICAL FIX: fl_attachment forces the browser to download the PDF 
+                      // instead of redirecting to the res.cloudinary.com error page.
+                      href={message.fileUrl.replace("/upload/", "/upload/fl_attachment/")}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline text-sm"
+                      className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+                        isMessageFromCurrentUser(message)
+                          ? "bg-blue-600 border-blue-400 text-white hover:bg-blue-700"
+                          : "bg-white border-gray-200 text-blue-600 hover:bg-gray-50"
+                      }`}
                     >
-                      📄 {message.fileName}
+                      <span className="text-lg">📄</span>
+                      <span className="text-xs font-medium truncate max-w-[150px]">
+                        {message.fileName || "Download Document"}
+                      </span>
                     </a>
                   </div>
                 ) : (

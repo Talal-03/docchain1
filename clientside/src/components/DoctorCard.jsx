@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { AppContext } from "../context/AppContext";
 
 const DoctorCard = ({ 
   doctor, 
@@ -9,6 +10,7 @@ const DoctorCard = ({
   showOnlineBadge = false 
 }) => {
   const navigate = useNavigate();
+  const { currencySymbol } = useContext(AppContext);
 
   const handleCardClick = () => {
     if (doctor.status === "suspended") {
@@ -90,7 +92,8 @@ const DoctorCard = ({
               Online Consultation
             </p>
             <p className="text-sm font-bold text-blue-800">
-              ${doctor.onlineConsultFee || 0}
+              {currencySymbol}
+              {doctor.onlineConsultFee || 0}
             </p>
             <p className="text-xs text-gray-600">
               ~{doctor.averageConsultDuration || 15} min

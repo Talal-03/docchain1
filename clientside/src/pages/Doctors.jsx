@@ -2,41 +2,47 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import DoctorCard from "../components/DoctorCard";
-
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 const Doctors = () => {
   const { speciality } = useParams();
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
-  const [city, setCity] = useState("All");
+  const [city, setCity] = useState("All Cities");
 
   const navigate = useNavigate();
-
   const { doctors } = useContext(AppContext);
+  const specialities = [
+    "General physician",
+    "Gynecologist",
+    "Dermatologist",
+    "Pediatricians",
+    "Neurologist",
+    "Gastroenterologist",
+  ];
 
-  // const applyFilter = () => {
-  //  let filtered = doctors.filter(
-  //   (doc) => doc.status !== "suspended"
-  // );
+  const cityOptions = [
+    "All Cities",
+    ...Array.from(
+      new Set(
+        doctors
+          .map((doc) => doc.city)
+          .filter(Boolean)
+          .map((c) => c.trim())
+      )
+    ).sort((a, b) => a.localeCompare(b)),
+  ];
 
-  // if (speciality) {
-  //   filtered = filtered.filter(
-  //     (doc) => doc.speciality === speciality
-  //   );
-  // }
-
-  // setFilterDoc(filtered);
-  // };
   const applyFilter = () => {
-    // ✅ Include suspended doctors in the list
-    let filtered = [...doctors];
+    let filtered = doctors.filter((doc) => doc.status !== "suspended");
 
     if (speciality) {
       filtered = filtered.filter((doc) => doc.speciality === speciality);
     }
-    if (city !== "All") {
-      filtered = filtered.filter((doc) => doc.city === city);
+
+    if (city !== "All Cities") {
+      const normalizedSelectedCity = city.toLowerCase().trim();
+      filtered = filtered.filter(
+        (doc) => doc.city?.toLowerCase().trim() === normalizedSelectedCity
+      );
     }
 
     setFilterDoc(filtered);
@@ -46,121 +52,124 @@ const Doctors = () => {
   }, [doctors, speciality, city]);
 
   return (
-    <div>
-      <div className="flex justify-between items-center">
-        <p className="text-gray-600">Browse through the doctors specialist.</p>
-        <div className="mb-4">
+    <section className="min-h-[60vh] pb-14">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl px-5 py-6 sm:px-8 sm:py-8 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-blue-600 font-semibold mb-2">
+              Find Your Specialist
+            </p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              {speciality ? `${speciality} Doctors` : "Book with Trusted Doctors"}
+            </h1>
+            <p className="text-gray-600 mt-2 text-sm sm:text-base">
+              Browse verified doctors and choose the right specialist for your
+              needs.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 w-fit">
+            <span className="text-sm text-gray-500">Doctors found:</span>
+            <span className="text-sm font-semibold text-gray-800">
+              {filterDoc.length}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end mb-4">
+        <div className="w-full sm:w-auto">
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="border px-3 py-2 rounded text-gray-600"
+            className="w-full sm:w-56 border border-gray-300 bg-white px-3 py-2.5 rounded-xl text-sm text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-200 focus:outline-none"
           >
-            <option value="All">All Cities</option>
-            <option value="Lahore">Lahore</option>
-            <option value="Islamabad">Islamabad</option>
-            <option value="Karachi">Karachi</option>
+            {cityOptions.map((cityName) => (
+              <option key={cityName} value={cityName}>
+                {cityName}
+              </option>
+            ))}
           </select>
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
+
+      <div className="flex flex-col lg:flex-row items-start gap-5 mt-2">
         <button
-          className={`py-1 px-3 border rounded text-sm transition-all sm:hidden ${
-            showFilter ? "bg-primary text-white" : ""
+          className={`py-2 px-4 border rounded-lg text-sm transition-all lg:hidden ${
+            showFilter
+              ? "bg-blue-600 text-white border-blue-600"
+              : "bg-white text-gray-700 border-gray-300"
           }`}
           onClick={() => setShowFilter((prev) => !prev)}
         >
-          Filters
+          {showFilter ? "Hide Specialities" : "Show Specialities"}
         </button>
-        <div
-          className={`flex-col gap-4 text-sm text-gray-600 ${
-            showFilter ? "flex" : "hidden sm:flex"
-          }`}
-        >
-          <p
-            onClick={() =>
-              speciality === "General physician"
-                ? navigate("/doctors")
-                : navigate("/doctors/General physician")
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === "General physician"
-                ? "bg-indigo-100 text-black"
-                : ""
-            }`}
-          >
-            General physician
-          </p>
-          <p
-            onClick={() =>
-              speciality === "Gynecologist"
-                ? navigate("/doctors")
-                : navigate("/doctors/Gynecologist")
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === "Gynecologist" ? "bg-indigo-100 text-black" : ""
-            }`}
-          >
-            Gynecologist
-          </p>
-          <p
-            onClick={() =>
-              speciality === "Dermatologist"
-                ? navigate("/doctors")
-                : navigate("/doctors/Dermatologist")
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === "Dermatologist" ? "bg-indigo-100 text-black" : ""
-            }`}
-          >
-            Dermatologist
-          </p>
-          <p
-            onClick={() =>
-              speciality === "Pediatricians"
-                ? navigate("/doctors")
-                : navigate("/doctors/Pediatricians")
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === "Pediatricians" ? "bg-indigo-100 text-black" : ""
-            }`}
-          >
-            Pediatricians
-          </p>
-          <p
-            onClick={() =>
-              speciality === "Neurologist"
-                ? navigate("/doctors")
-                : navigate("/doctors/Neurologist")
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === "Neurologist" ? "bg-indigo-100 text-black" : ""
-            }`}
-          >
-            Neurologist
-          </p>
-          <p
-            onClick={() =>
-              speciality === "Gastroenterologist"
-                ? navigate("/doctors")
-                : navigate("/doctors/Gastroenterologist")
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === "Gastroenterologist"
-                ? "bg-indigo-100 text-black"
-                : ""
-            }`}
-          >
-            Gastroenterologist
-          </p>
-        </div>
 
-        <div className="w-full grid grid-cols-auto gap-4 gap-y-6">
-          {filterDoc.map((item, index) => (
-            <DoctorCard key={index} doctor={item} showOnlineBadge={true} />
+        <div
+          className={`${
+            showFilter ? "flex" : "hidden lg:flex"
+          } flex-col gap-2 text-sm text-gray-700 w-full lg:w-[260px] lg:sticky lg:top-4 bg-white border border-gray-200 rounded-2xl p-3 shadow-sm`}
+        >
+          <button
+            type="button"
+            onClick={() => navigate("/doctors")}
+            className={`text-left px-3 py-2.5 rounded-lg transition-all ${
+              !speciality
+                ? "bg-blue-600 text-white font-medium"
+                : "hover:bg-gray-50"
+            }`}
+          >
+            All Specialities
+          </button>
+          {specialities.map((spec) => (
+            <button
+              type="button"
+              key={spec}
+              onClick={() => navigate(`/doctors/${spec}`)}
+              className={`text-left px-3 py-2.5 rounded-lg transition-all ${
+                speciality === spec
+                  ? "bg-blue-600 text-white font-medium"
+                  : "hover:bg-gray-50"
+              }`}
+            >
+              {spec}
+            </button>
           ))}
         </div>
+
+        <div className="w-full">
+          {filterDoc.length === 0 ? (
+            <div className="border border-dashed border-gray-300 rounded-2xl p-8 sm:p-10 text-center bg-white">
+              <h3 className="text-lg font-semibold text-gray-800">
+                No doctors found
+              </h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Try changing speciality or city filters to see more doctors.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setCity("All Cities");
+                  navigate("/doctors");
+                }}
+                className="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+              {filterDoc.map((item) => (
+                <DoctorCard
+                  key={item._id}
+                  doctor={item}
+                  showOnlineBadge={true}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

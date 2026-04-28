@@ -9,6 +9,8 @@ const DoctorProfile = () => {
   const { dToken, profileData, setProfileData, getProfileData, backendUrl } =
     useContext(DoctorContext);
   const { currency } = useContext(AppContext);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   const [isEdit, setIsEdit] = useState(false);
   const [timeSettings, setTimeSettings] = useState({
@@ -20,6 +22,27 @@ const DoctorProfile = () => {
   });
 
   const daysOfWeek = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+  const fetchDoctorReviews = async () => {
+    if (!dToken) return;
+
+    try {
+      setReviewsLoading(true);
+      const { data } = await axios.get(backendUrl + "/api/doctor/reviews", {
+        headers: { dToken },
+      });
+
+      if (data.success) {
+        setReviews(data.reviews || []);
+      } else {
+        toast.error(data.message || "Failed to load patient reviews");
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to load patient reviews");
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
 
   const updateProfile = async () => {
     try {
@@ -50,6 +73,7 @@ const DoctorProfile = () => {
 
   useEffect(() => {
     getProfileData();
+    fetchDoctorReviews();
   }, [dToken]);
 
   useEffect(() => {
@@ -268,6 +292,88 @@ const DoctorProfile = () => {
               setProfileData={setProfileData}
               getProfileData={getProfileData}
             />
+
+            <div className="mt-10 border-t pt-8">
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    Patient Reviews
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Recent feedback from your completed appointments
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">
+                    Overall Rating
+                  </p>
+                  <p className="text-lg font-bold text-gray-800">
+                    {profileData.averageRating || "0.0"} / 5
+                  </p>
+                </div>
+              </div>
+
+              {reviewsLoading ? (
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-6 text-sm text-gray-500">
+                  Loading patient reviews...
+                </div>
+              ) : reviews.length === 0 ? (
+                <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-6 text-sm text-gray-500">
+                  No reviews yet. Completed appointments with feedback will
+                  appear here.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                  {reviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-700 font-semibold flex items-center justify-center shrink-0">
+                            {(review.user?.name || "P").charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-gray-800 truncate">
+                              {review.user?.name || "Patient"}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString(
+                                "en-PK",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="text-amber-500 text-sm tracking-wide">
+                            {"★".repeat(review.rating)}
+                            <span className="text-gray-300">
+                              {"★".repeat(5 - review.rating)}
+                            </span>
+                          </div>
+                          <span className="text-sm font-semibold text-gray-700">
+                            {review.rating}.0
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+                        {review.comment?.trim()
+                          ? review.comment
+                          : "No written comment provided."}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <button
               onClick={isEdit ? updateProfile : () => setIsEdit(true)}

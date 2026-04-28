@@ -1,7 +1,17 @@
 import React from 'react'
 import { assets } from '../assets/assets'
 
-const Header = () => {
+const Header = ({ onBookAppointmentClick }) => {
+  const handleBookAppointmentScroll = () => {
+    if (typeof onBookAppointmentClick === "function") {
+      onBookAppointmentClick();
+      return;
+    }
+
+    const specialitySection = document.getElementById("speciality");
+    specialitySection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className='flex bg-gradient-to-r from-blue-200 to-cyan-200 flex-col md:flex-row flex-wrap rounded-xl px-5 sm:px-8 md:px-12 lg:px-20 py-10 sm:py-12 md:py-0'>
 
@@ -31,13 +41,14 @@ const Header = () => {
           </p>
         </div>
 
-        <a
-          href="#speciality"
+        <button
+          type="button"
+          onClick={handleBookAppointmentScroll}
           className='flex items-center gap-2 bg-white px-6 sm:px-8 py-3 rounded-full text-gray-600 text-sm sm:text-base m-auto md:m-0 hover:scale-105 transition-all duration-300'
         >
           Book appointment
           <img className='w-3' src={assets.arrow_icon} alt="" />
-        </a>
+        </button>
 
         <div className="flex justify-center md:justify-start gap-6 sm:gap-8 mt-3 flex-wrap">
           <div className="flex items-center gap-3">

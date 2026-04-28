@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AdminContext } from "./context/AdminContext";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Dashboard from "./pages/Admin/Dashboard";
 import AllAppointments from "./pages/Admin/AllAppointments";
 import AddDoctor from "./pages/Admin/AddDoctor";
@@ -23,15 +23,23 @@ const App = () => {
   const { dToken } = useContext(DoctorContext);
 
   return aToken || dToken ? (
-    <div className="bg-[#F8F9FD] h-screen flex flex-col">
+    <div className="bg-[#F8F9FD] min-h-screen flex flex-col">
       <ToastContainer />
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <Routes>
             {/* Admin Route */}
-            <Route path="/" element={<></>} />
+            <Route
+              path="/"
+              element={
+                <Navigate
+                  to={aToken ? "/admin-dashboard" : "/doctor-dashboard"}
+                  replace
+                />
+              }
+            />
             <Route path="/admin-dashboard" element={<Dashboard />} />
             <Route path="/all-appointments" element={<AllAppointments />} />
             <Route path="/add-doctor" element={<AddDoctor />} />

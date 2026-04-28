@@ -8,7 +8,7 @@ import { io } from "socket.io-client";
 const ConsultWaiting = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
-  const { backendUrl, token } = useContext(AppContext);
+  const { backendUrl, token, currencySymbol } = useContext(AppContext);
 
   const [loading, setLoading] = useState(true);
   const [sessionData, setSessionData] = useState(null);
@@ -119,19 +119,19 @@ const ConsultWaiting = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center">
+      <section className="min-h-[60vh] py-10 flex items-center justify-center bg-gray-50 rounded-2xl">
+        <div className="text-center bg-white border border-gray-200 rounded-2xl p-8 shadow-sm max-w-lg w-full">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading consultation room...</p>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (doctorRejected) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center p-6 bg-white rounded-lg shadow-lg max-w-md">
+      <section className="min-h-[60vh] py-10 flex items-center justify-center bg-gray-50 rounded-2xl">
+        <div className="text-center p-6 bg-white border border-gray-200 rounded-2xl shadow-sm max-w-md w-full">
           <div className="text-red-500 text-5xl mb-4">❌</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             Consultation Rejected
@@ -146,14 +146,14 @@ const ConsultWaiting = () => {
             Find Another Doctor
           </button>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (doctorAccepted) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center p-6 bg-white rounded-lg shadow-lg max-w-md">
+      <section className="min-h-[60vh] py-10 flex items-center justify-center bg-gray-50 rounded-2xl">
+        <div className="text-center p-6 bg-white border border-gray-200 rounded-2xl shadow-sm max-w-md w-full">
           <div className="text-green-500 text-5xl mb-4">✅</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             Consultation Accepted!
@@ -163,7 +163,7 @@ const ConsultWaiting = () => {
           </p>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
         </div>
-      </div>
+      </section>
     );
   }
 
@@ -269,7 +269,10 @@ const ConsultWaiting = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Fee:</span>
-              <span className="text-gray-800">${sessionData?.fee || 0}</span>
+              <span className="text-gray-800">
+                {currencySymbol}
+                {sessionData?.fee || 0}
+              </span>
             </div>
           </div>
         </div>

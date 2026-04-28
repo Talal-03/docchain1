@@ -69,21 +69,21 @@ const OnlineConsultSuccess = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
+      <section className="min-h-[60vh] py-10 flex items-center justify-center">
+        <div className="text-center bg-white border border-gray-200 rounded-2xl p-8 shadow-sm max-w-lg w-full">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">
             Processing your consultation request...
           </p>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center p-6 bg-white rounded-lg shadow-lg max-w-md">
+      <section className="min-h-[60vh] py-10 flex items-center justify-center">
+        <div className="text-center p-6 bg-white border border-gray-200 rounded-2xl shadow-sm max-w-md w-full">
           <div className="text-red-500 text-5xl mb-4">❌</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             Payment Failed
@@ -96,13 +96,13 @@ const OnlineConsultSuccess = () => {
             Go Back
           </button>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center p-6 bg-white rounded-lg shadow-lg max-w-md">
+    <section className="min-h-[60vh] py-10 flex items-center justify-center">
+      <div className="text-center p-6 bg-white border border-gray-200 rounded-2xl shadow-sm max-w-md w-full">
         <div className="text-green-500 text-5xl mb-4">✅</div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Payment Successful!
@@ -139,7 +139,7 @@ const OnlineConsultSuccess = () => {
           </ul>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

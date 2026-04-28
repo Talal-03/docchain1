@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import axiosInstance from "../axiosInstance";
 
 const ConsultRoom = () => {
   const { roomId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { backendUrl, token } = useContext(AppContext);
 
@@ -37,9 +38,22 @@ const ConsultRoom = () => {
 
   const validateRoomAccess = async () => {
     try {
+      // Check for dToken in URL params (doctor accessing from admin panel)
+      const dTokenFromUrl = searchParams.get("dToken");
+      const authToken = dTokenFromUrl || token || localStorage.getItem("token");
+      if (!authToken) {
+        setError("No token provided");
+        setLoading(false);
+        return;
+      }
+
       const { data } = await axiosInstance.get(
         `${backendUrl}/api/online-consult/${roomId}/validate`,
-        { headers: { token } },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        },
       );
 
       if (data.success) {

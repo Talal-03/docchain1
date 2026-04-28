@@ -10,6 +10,17 @@ const Navbar = () => {
 
   const navigate = useNavigate();
 
+  const navigateToDashboard = () => {
+    if (aToken) {
+      navigate("/admin-dashboard");
+      return;
+    }
+
+    if (dToken) {
+      navigate("/doctor-dashboard");
+    }
+  };
+
   const logout = () => {
     navigate("/");
     aToken && setAToken("");
@@ -20,7 +31,11 @@ const Navbar = () => {
 
   return (
     <div className="flex justify-between items-center px-3 sm:px-10 gap-2 py-3 border-b bg-white">
-      <div className="flex items-center gap-2 text-xs">
+      <button
+        type="button"
+        onClick={navigateToDashboard}
+        className="flex items-center gap-2 text-xs"
+      >
         <img
           className="w-28 sm::w-40 cursor-pointer rounded-xl"  //remove rounded after real logo
           src={assets.admin}
@@ -30,7 +45,7 @@ const Navbar = () => {
         <p className="border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600">
           {aToken ? "Admin" : "Doctor"}
         </p>
-      </div>
+      </button>
       <button
         onClick={logout}
         className="bg-primary text-white text-sm px-4 sm:px-10 py-2 rounded-full"

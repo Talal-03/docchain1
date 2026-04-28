@@ -25,6 +25,7 @@ const DoctorOnlineSettings = ({
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [socket, setSocket] = useState(null);
   const [responding, setResponding] = useState(false);
+  const [roomUrl, setRoomUrl] = useState(null);
 
   useEffect(() => {
     if (profileData) {
@@ -96,9 +97,13 @@ const DoctorOnlineSettings = ({
       );
 
       if (data.success) {
-        const pendingRequests = data.sessions.filter(
-          (session) => session.status === "pending_doctor_accept",
-        );
+        const pendingRequests = data.sessions
+          .filter((session) => session.status === "pending_doctor_accept")
+          .map((session) => ({
+            ...session,
+            sessionId: session._id,
+            patient: session.patientId,
+          }));
         setIncomingRequests(pendingRequests);
       }
     } catch (error) {
@@ -139,7 +144,7 @@ const DoctorOnlineSettings = ({
       const { data } = await axios.post(
         `${backendUrl}/api/online-consult/respond`,
         {
-          sessionId: selectedRequest.sessionId,
+          sessionId: selectedRequest.sessionId || selectedRequest._id,
           action,
         },
         { headers: { dToken } },
@@ -151,13 +156,16 @@ const DoctorOnlineSettings = ({
         toast.success(`Consultation ${action}ed successfully`);
 
         if (action === "accept") {
-          // Redirect to consultation room in client app
-          const clientUrl =
-            import.meta.env.VITE_CLIENT_URL || "http://localhost:5173";
-          window.open(
-            `${clientUrl}/consult-room/${selectedRequest.roomId}`,
-            "_blank",
-          );
+          const clientUrl = import.meta.env.VITE_CLIENT_URL || "http://localhost:5173";
+          const url = `${clientUrl}/consult-room/${selectedRequest.roomId}?dToken=${dToken}`;
+          setRoomUrl(url);
+          
+          // Try to open in new tab
+          const newWindow = window.open(url, "_blank");
+          if (!newWindow) {
+            // If popup blocked, show URL for manual copy
+            toast.info("Please copy this URL to open video room: " + url);
+          }
         }
 
         // Remove request from list
@@ -226,8 +234,9 @@ const DoctorOnlineSettings = ({
               }))
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            min="0"
-            step="0.01"
+            min="5000"
+            max="15000"
+            step="500"
           />
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import Headers from "../components/Header";
 import SpecialityMenu from "../components/SpecialityMenu";
@@ -11,6 +11,18 @@ import FAQSection from "../components/Faq";
 
 const Home = () => {
   const location = useLocation();
+  const specialitySectionRef = useRef(null);
+
+  const scrollToSpeciality = () => {
+    const target = specialitySectionRef.current;
+    if (!target) return;
+
+    const y = target.getBoundingClientRect().top + window.scrollY - 20;
+    const previousInlineBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
+    window.scrollTo({ top: y, behavior: "auto" });
+    document.documentElement.style.scrollBehavior = previousInlineBehavior;
+  };
 
   useEffect(() => {
     const hash = location.hash?.replace("#", "");
@@ -26,7 +38,7 @@ const Home = () => {
     <div className="flex flex-col w-full overflow-x-hidden">
 
       <div className="w-full">
-        <Headers />
+        <Headers onBookAppointmentClick={scrollToSpeciality} />
         
       </div>
 
@@ -48,7 +60,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div id="speciality" className="w-full py-10 sm:py-14 lg:py-16 bg-gray-50">
+      <div ref={specialitySectionRef} id="speciality" className="w-full py-10 sm:py-14 lg:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
           <SpecialityMenu />
         </div>

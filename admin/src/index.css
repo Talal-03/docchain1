@@ -3,10 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
-::-webkit-scrollbar {
-    @apply hidden;
-}
-
 *{
     font-family: Outfit;
+}
+
+html,
+body,
+#root {
+    min-height: 100%;
 }

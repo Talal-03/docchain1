@@ -6,7 +6,7 @@ import ChatWindow from "../components/ChatWindow";
 import useChatNotifications from "../hooks/useChatNotifications";
 
 const MyAppointments = () => {
-  const { backendUrl, token, getDoctorsData } = useContext(AppContext);
+  const { backendUrl, token, getDoctorsData, currencySymbol } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
   const [showRateModal, setShowRateModal] = useState(false);
   const [selectedAppt, setSelectedAppt] = useState(null);
@@ -172,13 +172,13 @@ const MyAppointments = () => {
 
                 {/* ⭐ PRICE DISPLAY WITH DISCOUNT */}
                 <p className="mt-2">
-                  <span className="font-medium">Fee:</span> ${item.amount}
+                  <span className="font-medium">Fee:</span> {currencySymbol}{item.amount}
                 </p>
 
                 <p className="text-green-600 text-sm">
                   10% OFF on online payment
                 </p>
-                <p className="font-semibold">Pay Online: ${discounted}</p>
+                <p className="font-semibold">Pay Online: {currencySymbol}{discounted}</p>
 
                 {item.isPaid && (
                   <span className="inline-block mt-1 px-3 py-1 bg-green-500 text-white rounded text-xs">

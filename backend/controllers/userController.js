@@ -115,7 +115,6 @@ const loginUser = async (req, res) => {
 // };
 const getProfile = async (req, res) => {
   try {
-    console.log("req.user:", req.user); // <--- log token payload
 
     const userId = req.user.userId; // your token uses 'userId'
     if (!userId) {
@@ -129,7 +128,6 @@ const getProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    console.log("Fetched user data:", userData);
     res.json({ success: true, user: userData });
   } catch (error) {
     console.error("getProfile error:", error);
@@ -238,34 +236,40 @@ if (!docData.available) {
 
     const newAppointment = new appointmentModel(appointmentData);
     await newAppointment.save();
-    // Send confirmation email to patient
-appointmentBookedPatient({
-  patientName: userData.name,
-  patientEmail: userData.email,
-  doctorName: docData.name,
-  doctorEmail: docData.email,
-  date: slotDate,
-  time: slotTime,
-});
+    // Fire-and-forget emails; failures should never break booking flow
+    appointmentBookedPatient({
+      patientName: userData.name,
+      patientEmail: userData.email,
+      doctorName: docData.name,
+      doctorEmail: docData.email,
+      date: slotDate,
+      time: slotTime,
+    }).catch((err) =>
+      console.error("Failed to send appointment email to patient:", err.message)
+    );
 
-// Notify doctor
-appointmentBookedDoctor({
-  patientName: userData.name,
-  patientEmail: userData.email,
-  doctorName: docData.name,
-  doctorEmail: docData.email,
-  date: slotDate,
-  time: slotTime,
-});
-setTimeout(() => {
-  appointmentReminder({
-    patientName: userData.name,
-    patientEmail: userData.email,
-    doctorName: docData.name,
-    date: slotDate,
-    time: slotTime,
-  }).catch(err => console.error("Failed to send reminder email:", err));
-}, 60000); // 60000 ms = 1 minute
+    appointmentBookedDoctor({
+      patientName: userData.name,
+      patientEmail: userData.email,
+      doctorName: docData.name,
+      doctorEmail: docData.email,
+      date: slotDate,
+      time: slotTime,
+    }).catch((err) =>
+      console.error("Failed to send appointment email to doctor:", err.message)
+    );
+
+    setTimeout(() => {
+      appointmentReminder({
+        patientName: userData.name,
+        patientEmail: userData.email,
+        doctorName: docData.name,
+        date: slotDate,
+        time: slotTime,
+      }).catch((err) =>
+        console.error("Failed to send reminder email:", err.message)
+      );
+    }, 60000); // 60000 ms = 1 minute
 
     // save new slots data in docData
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });

@@ -42,6 +42,17 @@ const DoctorContextProvider = (props) => {
       if (data.success) {
         toast.success(data.message);
         getAppointments();
+        setDashData((prev) => {
+          if (!prev || !Array.isArray(prev.latestAppointments)) return prev;
+          return {
+            ...prev,
+            latestAppointments: prev.latestAppointments.map((appointment) =>
+              appointment._id === appointmentId
+                ? { ...appointment, isCompleted: true, cancelled: false }
+                : appointment
+            ),
+          };
+        });
       } else {
         toast.error(data.message);
       }
@@ -62,6 +73,17 @@ const DoctorContextProvider = (props) => {
       if (data.success) {
         toast.success(data.message);
         getAppointments();
+        setDashData((prev) => {
+          if (!prev || !Array.isArray(prev.latestAppointments)) return prev;
+          return {
+            ...prev,
+            latestAppointments: prev.latestAppointments.map((appointment) =>
+              appointment._id === appointmentId
+                ? { ...appointment, cancelled: true, isCompleted: false }
+                : appointment
+            ),
+          };
+        });
       } else {
         toast.error(data.message);
       }

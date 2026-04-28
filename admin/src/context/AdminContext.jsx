@@ -96,6 +96,17 @@ const changeDoctorStatus = async (doctorId, status) => {
       if (data.success) {
         toast.success(data.message);
         getAllAppointments();
+        setDashData((prev) => {
+          if (!prev || !Array.isArray(prev.latestAppointments)) return prev;
+          return {
+            ...prev,
+            latestAppointments: prev.latestAppointments.map((appointment) =>
+              appointment._id === appointmentId
+                ? { ...appointment, cancelled: true, isCompleted: false }
+                : appointment
+            ),
+          };
+        });
       } else {
         toast.error(data.message);
       }

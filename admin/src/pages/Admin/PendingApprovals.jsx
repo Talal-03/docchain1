@@ -103,7 +103,7 @@ const PendingApprovals = () => {
                 </td>
                 <td className="px-4 py-3">
                   <p className="text-gray-700">{doc.experience}</p>
-                  <p className="text-gray-500 text-xs">Fee: {doc.fee}</p>
+                  <p className="text-gray-500 text-xs">Fee: PKR {doc.fee}</p>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-center gap-2">
@@ -136,7 +136,7 @@ const PendingApprovals = () => {
               <div><p className="text-gray-400">City</p><p className="font-medium">{doc.city}</p></div>
               <div><p className="text-gray-400">Experience</p><p className="font-medium">{doc.experience}</p></div>
               <div><p className="text-gray-400">Education</p><p className="font-medium">{doc.education}</p></div>
-              <div><p className="text-gray-400">Consultation Fee</p><p className="font-medium">{doc.fee}</p></div>
+              <div><p className="text-gray-400">Consultation Fee</p><p className="font-medium">PKR {doc.fee}</p></div>
             </div>
 
             <div className="flex flex-col gap-2">

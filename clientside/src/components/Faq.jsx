@@ -31,9 +31,9 @@ export default function FAQSection() {
   ];
 
   return (
-    <div className="w-full h-[50vh] mb-64 flex justify-center items-center px-6">
-      <div className="w-full max-w-5xl bg-[#e6f6fc] rounded-3xl p-10 shadow-sm overflow-y-auto">
-        <h2 className="text-4xl font-bold text-center mb-10">
+    <div className="w-full py-12 sm:py-16 flex justify-center items-start px-4 sm:px-6">
+      <div className="w-full max-w-5xl bg-[#e6f6fc] rounded-3xl p-6 sm:p-10 shadow-sm">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10">
           Frequently Asked Questions
         </h2>
 
@@ -41,14 +41,14 @@ export default function FAQSection() {
           {faqs.map((item, index) => (
             <div key={index} className="border-b border-gray-400 pb-4">
               <div
-                className="flex justify-between items-center cursor-pointer select-none"
+                className="flex justify-between items-center cursor-pointer select-none gap-4"
                 onClick={() =>
                   setOpenIndex(openIndex === index ? null : index)
                 }
               >
-                <h3 className="text-lg font-semibold">Q: {item.q}</h3>
+                <h3 className="text-base sm:text-lg font-semibold">Q: {item.q}</h3>
                 <span
-                  className={`text-2xl font-bold text-blue-600 transition-transform duration-300
+                  className={`text-2xl font-bold text-blue-600 transition-transform duration-300 flex-shrink-0
                     ${openIndex === index ? "rotate-45" : ""}
                   `}
                 >
@@ -56,13 +56,12 @@ export default function FAQSection() {
                 </span>
               </div>
 
-              {/* Smooth answer */}
               <div
                 className={`overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
-                  ${openIndex === index ? "max-h-40 opacity-100 mt-3" : "max-h-0 opacity-0"}
+                  ${openIndex === index ? "max-h-96 opacity-100 mt-3" : "max-h-0 opacity-0"}
                 `}
               >
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
                   {item.a}
                 </p>
               </div>

@@ -118,7 +118,7 @@ const AddDoctor = () => {
 
             <div className="flex flex-col gap-1">
               <p className="text-sm font-medium">Fees</p>
-              <input onChange={(e) => SetFees(e.target.value)} value={fees} className="border rounded px-3 py-2 focus:border-primary outline-none transition-all" type="number" placeholder="Consultation Fees" required />
+              <input onChange={(e) => SetFees(e.target.value)} value={fees} className="border rounded px-3 py-2 focus:border-primary outline-none transition-all" type="number" min="5000" max="15000" step="500" placeholder="Consultation Fees (PKR)" required />
             </div>
           </div>
 

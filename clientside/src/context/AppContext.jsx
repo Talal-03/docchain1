@@ -6,7 +6,7 @@ import axiosInstance from "../axiosInstance";
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-  const currencySymbol = "$";
+  const currencySymbol = "PKR ";
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [doctors, setDoctors] = useState([]);
@@ -50,6 +50,15 @@ const AppContextProvider = (props) => {
         toast.error(data.message);
       }
     } catch (error) {
+      const statusCode = error?.response?.status;
+      // Token can become invalid/stale (or replaced by another panel token).
+      // In that case, silently clear session to avoid repeated noisy 404/401s.
+      if (statusCode === 401 || statusCode === 404) {
+        localStorage.removeItem("token");
+        setToken(false);
+        setUserData(false);
+        return;
+      }
       console.log(error);
       toast.error(error.message);
     }

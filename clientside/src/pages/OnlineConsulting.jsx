@@ -8,11 +8,11 @@ import axiosInstance from "../axiosInstance";
 const OnlineConsulting = () => {
   const navigate = useNavigate();
   const { doctors, token, backendUrl } = useContext(AppContext);
-  
+
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [speciality, setSpeciality] = useState("");
-  const [city, setCity] = useState("All");
+  const [city, setCity] = useState("All Cities");
   const [loading, setLoading] = useState(false);
 
   const specialities = [
@@ -24,20 +24,32 @@ const OnlineConsulting = () => {
     "Gastroenterologist"
   ];
 
-  const cities = ["All", "Lahore", "Islamabad", "Karachi"];
+  const cityOptions = [
+    "All Cities",
+    ...Array.from(
+      new Set(
+        doctors
+          .map((doc) => doc.city)
+          .filter(Boolean)
+          .map((c) => c.trim())
+      )
+    ).sort((a, b) => a.localeCompare(b)),
+  ];
 
-  const applyFilter = () => {``
-    let filtered = doctors.filter(doc => doc.status !== "suspended");
+  const applyFilter = () => {
+    let filtered = doctors.filter((doc) => doc.status !== "suspended");
 
-    // Filter for doctors who have online consultation enabled
-    filtered = filtered.filter(doc => doc.onlineConsultEnabled);
+    filtered = filtered.filter((doc) => doc.onlineConsultEnabled);
 
     if (speciality) {
       filtered = filtered.filter((doc) => doc.speciality === speciality);
     }
 
-    if (city !== "All") {
-      filtered = filtered.filter((doc) => doc.city === city);
+    if (city !== "All Cities") {
+      const normalizedSelectedCity = city.toLowerCase().trim();
+      filtered = filtered.filter(
+        (doc) => doc.city?.toLowerCase().trim() === normalizedSelectedCity
+      );
     }
 
     setFilterDoc(filtered);
@@ -56,14 +68,25 @@ const OnlineConsulting = () => {
 
     try {
       setLoading(true);
-      
-      // Create Stripe checkout session for online consultation
+
+      // Some existing doctors may not have onlineConsultFee configured yet.
+      // Fall back to profile fee to avoid backend "Missing required fields".
+      const consultFee = Number(doctor.onlineConsultFee) || Number(doctor.fees) || 0;
+      const doctorName = doctor.name?.trim();
+
+      if (!doctor?._id || !doctorName || consultFee <= 0) {
+        toast.error(
+          "This doctor's online consultation fee is not configured yet."
+        );
+        return;
+      }
+
       const { data } = await axiosInstance.post(
         `${backendUrl}/api/stripe/create-online-consult-checkout`,
         {
           doctorId: doctor._id,
-          fee: doctor.onlineConsultFee,
-          doctorName: doctor.name
+          fee: consultFee,
+          doctorName,
         }
       );
 
@@ -81,84 +104,115 @@ const OnlineConsulting = () => {
   };
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Online Consulting</h1>
-          <p className="text-gray-600 mt-1">
-            Connect with doctors instantly through video calls
-          </p>
+    <section className="min-h-[60vh] pb-14">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl px-5 py-6 sm:px-8 sm:py-8 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-blue-600 font-semibold mb-2">
+              Instant Video Care
+            </p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Online Consulting
+            </h1>
+            <p className="text-gray-600 mt-2 text-sm sm:text-base">
+              Connect with available doctors in minutes through secure video consultations.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 w-fit">
+            <span className="text-sm text-gray-500">Available online:</span>
+            <span className="text-sm font-semibold text-gray-800">
+              {filterDoc.length}
+            </span>
+          </div>
         </div>
-        
-        <div className="flex gap-2">
+      </div>
+
+      <div className="flex justify-end mb-4">
+        <div className="w-full sm:w-auto">
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="border px-3 py-2 rounded text-gray-600"
+            className="w-full sm:w-56 border border-gray-300 bg-white px-3 py-2.5 rounded-xl text-sm text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-200 focus:outline-none"
           >
-            {cities.map((cityOption) => (
+            {cityOptions.map((cityOption) => (
               <option key={cityOption} value={cityOption}>
                 {cityOption}
               </option>
             ))}
           </select>
-
-          <button
-            className={`py-1 px-3 border rounded text-sm transition-all sm:hidden ${
-              showFilter ? "bg-primary text-white" : ""
-            }`}
-            onClick={() => setShowFilter((prev) => !prev)}
-          >
-            Filters
-          </button>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
-        {/* Speciality Filter */}
-        <div
-          className={`flex-col gap-4 text-sm text-gray-600 ${
-            showFilter ? "flex" : "hidden sm:flex"
+      <div className="flex flex-col lg:flex-row items-start gap-5 mt-2">
+        <button
+          className={`py-2 px-4 border rounded-lg text-sm transition-all lg:hidden ${
+            showFilter
+              ? "bg-blue-600 text-white border-blue-600"
+              : "bg-white text-gray-700 border-gray-300"
           }`}
+          onClick={() => setShowFilter((prev) => !prev)}
         >
-          <p
+          {showFilter ? "Hide Specialities" : "Show Specialities"}
+        </button>
+
+        <div
+          className={`${
+            showFilter ? "flex" : "hidden lg:flex"
+          } flex-col gap-2 text-sm text-gray-700 w-full lg:w-[260px] lg:sticky lg:top-4 bg-white border border-gray-200 rounded-2xl p-3 shadow-sm`}
+        >
+          <button
+            type="button"
             onClick={() => setSpeciality("")}
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              !speciality ? "bg-indigo-100 text-black" : ""
+            className={`text-left px-3 py-2.5 rounded-lg transition-all ${
+              !speciality
+                ? "bg-blue-600 text-white font-medium"
+                : "hover:bg-gray-50"
             }`}
           >
             All Specialities
-          </p>
+          </button>
 
           {specialities.map((spec) => (
-            <p
+            <button
+              type="button"
               key={spec}
               onClick={() => setSpeciality(spec)}
-              className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-                speciality === spec ? "bg-indigo-100 text-black" : ""
+              className={`text-left px-3 py-2.5 rounded-lg transition-all ${
+                speciality === spec
+                  ? "bg-blue-600 text-white font-medium"
+                  : "hover:bg-gray-50"
               }`}
             >
               {spec}
-            </p>
+            </button>
           ))}
         </div>
 
-        {/* Doctors Grid */}
-        <div className="flex-1">
+        <div className="w-full">
           {filterDoc.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-gray-500 text-lg">
-                No doctors available for online consultation at the moment.
+            <div className="border border-dashed border-gray-300 rounded-2xl p-8 sm:p-10 text-center bg-white">
+              <h3 className="text-lg font-semibold text-gray-800">
+                No online consultants found
+              </h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Try changing speciality or city filters to see more available doctors.
               </p>
-              <p className="text-gray-400 text-sm mt-2">
-                Please check back later or try different filters.
-              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setCity("All Cities");
+                  setSpeciality("");
+                }}
+                className="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+              >
+                Reset Filters
+              </button>
             </div>
           ) : (
-            <div className="w-full grid grid-cols-auto gap-4 gap-y-6">
-              {filterDoc.map((doctor, index) => (
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+              {filterDoc.map((doctor) => (
                 <DoctorCard
-                  key={index}
+                  key={doctor._id}
                   doctor={doctor}
                   showOnlineConsultButton={true}
                   showOnlineBadge={true}
@@ -170,8 +224,7 @@ const OnlineConsulting = () => {
         </div>
       </div>
 
-      {/* Info Section */}
-      <div className="mt-12 bg-blue-50 rounded-xl p-6">
+      <div className="mt-10 bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm">
         <h2 className="text-lg font-semibold text-blue-800 mb-3">
           How Online Consulting Works
         </h2>
@@ -213,7 +266,7 @@ const OnlineConsulting = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useBlogs } from "../context/BlogContext";
+import { Link } from "react-router-dom";
 
 export default function HealthTips() {
   const { blogs } = useBlogs();
@@ -26,12 +27,12 @@ export default function HealthTips() {
           </p>
         </div>
 
-        <a
-          href="/blogs"
+        <Link
+          to="/blogs"
           className="bg-blue-600 text-white font-medium px-4 py-2 rounded-full hover:bg-blue-700 text-sm w-fit"
         >
           Read more
-        </a>
+        </Link>
       </div>
 
       {/* GRID */}
@@ -40,9 +41,9 @@ export default function HealthTips() {
         {/* LEFT SIDE — 2 big cards */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {bigCards.map((item) => (
-            <a
+            <Link
               key={item._id}
-              href={`/blog/${item.slug || item._id}`}
+              to={`/blog/${item.slug || item._id}`}
               className="rounded-xl overflow-hidden border shadow-sm bg-white hover:shadow-md transition cursor-pointer flex flex-col"
             >
               <img
@@ -67,16 +68,16 @@ export default function HealthTips() {
                   Read more →
                 </span>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
 
         {/* RIGHT SIDE — 4 small cards */}
         <div className="flex flex-col gap-3">
           {smallCards.map((item) => (
-            <a
+            <Link
               key={item._id}
-              href={`/blog/${item.slug || item._id}`}
+              to={`/blog/${item.slug || item._id}`}
               className="flex gap-3 p-2 rounded-xl border bg-white shadow-sm hover:shadow-md transition cursor-pointer h-20 sm:h-24"
             >
               <img
@@ -93,7 +94,7 @@ export default function HealthTips() {
                   {item.title}
                 </h3>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
 

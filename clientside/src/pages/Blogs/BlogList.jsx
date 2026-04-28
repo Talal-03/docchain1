@@ -1,4 +1,5 @@
 import { useBlogs } from "../../context/BlogContext";
+import { Link } from "react-router-dom";
 
 export default function BlogList() {
   const { blogs } = useBlogs();
@@ -18,9 +19,9 @@ export default function BlogList() {
       {/* GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {sorted.map((b) => (
-          <a
+          <Link
             key={b._id}
-            href={`/blog/${b.slug || b._id}`}
+            to={`/blog/${b.slug || b._id}`}
             className="block bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden"
           >
             <img
@@ -39,7 +40,7 @@ export default function BlogList() {
                 {b.excerpt?.slice(0, 120)}...
               </p>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </div>
